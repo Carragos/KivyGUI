@@ -1,0 +1,185 @@
+<WrappingLabel>
+    text_size: root.width, None
+
+<CustomOneLineListItem@OneLineListItem>:
+    divider: "Full"
+    _txt_bot_pad: dp(10)
+
+<FileScreen@Screen>
+    name: "fileScreen"
+    BoxLayout:
+        pos_hint: {"top": 1}
+        orientation: "vertical"
+        Label:
+            markup: True
+            text: "[b]Open any .txt file...[/b]"
+            size_hint: None, None
+            pos_hint: {"top": 1}
+            size: self.texture_size
+            font_size: "17sp"
+        MyFileChooser:
+            multiselect: False
+            show_hidden: True
+            id: fileC
+            filters: ["*.txt"]
+            FileChooserListLayout
+            FileChooserIconLayout
+        GridLayout:
+            size_hint_y: 0.2
+            rows: 2
+            cols: 2
+            Button:
+                text: "Toggle List Layout"
+                on_press: fileC.view_mode = "list"
+            Button:
+                text: "Toggle Icon Layout"
+                on_press: fileC.view_mode = "icon"
+            Button:
+                text: "Open"
+                on_press: fileC.openFile()
+            Button:
+                text: "Show"
+                on_press: fileC.showFile()
+
+<TextScreen@Screen>:
+    name: "textScreen"
+
+<Page1Screen@Screen>:
+    name: "Page1"
+    pos_hint: {"bot": 1}
+    size_hint: None, None
+    Page1Box:
+        pos_hint: {"top": 1}
+        orientation: "vertical"
+        fileTextManager: fileTextManager
+        fileViewTab: fileViewTab
+        textViewTab: textViewTab
+        Tab:
+            size_hint_y: None
+            height: 50
+            on_tab_switch: self.parent.screenSwitch()
+            MyTab:
+                id: fileViewTab
+                text: "File View"
+            MyTab:
+                id: textViewTab
+                text: "Text View"
+        ScreenManager:
+            id: fileTextManager
+            FileScreen:
+            TextScreen:
+
+<Page2Screen@Screen>:
+    name: "Page2"
+    pos_hint: {"bot": 1}
+    size_hint: None, None
+    Widget:
+        canvas.before:
+            Color:
+                rgb: [(40/255), (43/255), (45/255)]
+            Rectangle:
+                size: self.size
+                pos: self.pos
+    BoxLayout:
+        orientation: "vertical"
+        BoxLayout:
+            pos_hint: {"top": 1}
+            Image:
+                pos_hint: {"top": 1}
+                source: "regex/CharacterClasses.JPG"
+                size: self.texture_size
+            Image:
+                pos_hint: {"top": 1}
+                source: "regex/Anchors&EscapedCharacters.jpg"
+                size: self.texture_size
+        BoxLayout:
+            pos_hint: {"top": 1}
+            Image:
+                pos_hint: {"top": 1}
+                source: "regex/Groups&Lookaround.JPG"
+                size: self.texture_size
+            Image:
+                pos_hint: {"top": 1}
+                source: "regex/Quantifiers&Alternation.JPG"
+                size: self.texture_size
+<Page3Screen@Screen>:
+    name: "Page3"
+    pos_hint: {"bot": 1}
+    size_hint: None, None
+    Page3Box:
+        pos_hint: {"top": 1}
+        orientation: "vertical"
+        Button:
+            text: "Remove meta"
+            on_press: self.parent.noMetaText()
+FloatLayout:
+    id: floatLayout
+    NavigationLayout:
+        id: navLayout
+        ScreenManager:
+            id: screeni
+            direction: "up"
+            pos_hint: {"top": 1}
+            Page1Screen:
+                height: (Window.height - toolbar.height)
+                width: Window.width
+            Page2Screen:
+                height: (Window.height - toolbar.height)
+                width: Window.width
+            Page3Screen:
+                height: (Window.height - toolbar.height)
+                width: Window.width
+        MDNavigationDrawer:
+            md_bg_color: [(43/255), (43/255), (43/255), 1]
+            id: navDrawer
+            swipe_distance: 20
+            size_hint: None, None
+            BoxLayout:
+                orientation: "vertical"
+                CustomOneLineListItem:
+                    id: buttonPage1
+                    text: "[color=#ffffff]Page[/color] [color=#ff5722]1[/color] - File Viewer"
+                    font_style: "H5"
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 1]
+                    on_press:
+                        screeni.transition.direction = "down"
+                        screeni.current = 'Page1'
+                    on_release: navDrawer.toggle_nav_drawer()
+                CustomOneLineListItem:
+                    id: buttonPage2
+                    text: "[color=#ffffff]Page[/color] [color=#ff5722]2[/color] - RegEX"
+                    font_style: "H5"
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 1]
+                    on_press:
+                        app.changeTransitionScreen()
+                        screeni.current = 'Page2'
+                    on_release: navDrawer.toggle_nav_drawer()
+                CustomOneLineListItem:
+                    id: buttonPage3
+                    text: "[color=#ffffff]Page[/color] [color=#ff5722]3[/color] - Tokenizing"
+                    font_style: "H5"
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 1]
+                    on_press:
+                        screeni.transition.direction = "up"
+                        screeni.current = 'Page3'
+                    on_release: navDrawer.toggle_nav_drawer()
+                Widget:
+                    disabled: True
+                    size_hint: None, None
+                    height: (navDrawer.height - (toolbar.height + buttonPage1.height*3))
+                    width: navDrawer.width
+    AnchorLayout:
+        anchor_y: "top"
+        id: toolbarAnchor
+        MDToolbarX:
+            title: "Python GUI"
+            md_bg_color: app.theme_cls.primary_color
+            elevation: 0
+            left_action_items: [['menu', lambda x: navDrawer.toggle_nav_drawer()]]
+            right_action_items: [['help', lambda x: app.showInfoDialog()], ['exit-to-app', lambda x: app.stop()]]
+            id: toolbar
+            type: "top"
+            height: 50
