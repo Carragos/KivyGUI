@@ -38,17 +38,40 @@
                 text: "Open"
                 on_press: fileC.openFile()
             Button:
-                text: "Show"
-                on_press: fileC.showFile()
+                text: "Delete"
+                on_press: fileC.deleteFile()
 
 <TextScreen@Screen>:
     name: "textScreen"
+    textInput: textInput
+    FileScreenBox:
+        orientation: "vertical"
+        textInput: textInput
+        BoxLayout:
+            Button:
+                text: "Refresh"
+            Button:
+                text: "Save"
+        ScrollView:
+            textInput: textInput
+            id: scrollView
+            bar_width: 20
+            bar_color: [1.00000000000, 0.34117647059, 0.13333333333, 1]
+            bar_inactive_color: [1.00000000000, 0.34117647059, 0.13333333333, 0.5]
+            scroll_type: ["bars", "content"]
+            TextInput:
+                multiline: True
+                id: textInput
+                size_hint_y: None
+                height: max(self.minimum_height, scrollView.height)
 
 <Page1Screen@Screen>:
     name: "Page1"
     pos_hint: {"bot": 1}
     size_hint: None, None
+    page1box: page1box
     Page1Box:
+        id: page1box
         pos_hint: {"top": 1}
         orientation: "vertical"
         fileTextManager: fileTextManager
@@ -66,8 +89,12 @@
                 text: "Text View"
         ScreenManager:
             id: fileTextManager
+            fileScreen: fileScreen
+            textScreen: textScreen
             FileScreen:
+                id: fileScreen
             TextScreen:
+                id: textScreen
 
 <Page2Screen@Screen>:
     name: "Page2"
@@ -121,6 +148,7 @@ FloatLayout:
             direction: "up"
             pos_hint: {"top": 1}
             Page1Screen:
+                id: page1
                 height: (Window.height - toolbar.height)
                 width: Window.width
             Page2Screen:

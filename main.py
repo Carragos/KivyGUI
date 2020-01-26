@@ -9,6 +9,7 @@ from kivy.uix.filechooser import FileChooser
 from kivymd.uix.snackbar import Snackbar
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy.uix.button import Button
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.textfield import MDTextFieldRect
 from kivy.uix.scrollview import ScrollView
@@ -23,14 +24,22 @@ textFile = []
 normalizedPath = ""
 
 
+class FileScreenBox(BoxLayout):
+    pass
+
+
 class Page1Box(BoxLayout):
+    fileShownYet = False
+
     def screenSwitch(self):
+        global textFile
         if self.fileViewTab.tab_label.state == "down":
             self.fileTextManager.current = "fileScreen"
             self.fileTextManager.transition.direction = "right"
         elif self.textViewTab.tab_label.state == "down":
             self.fileTextManager.current = "textScreen"
             self.fileTextManager.transition.direction = "left"
+
 
 class Page3Box(BoxLayout):
     def noMetaText(self, start="PREFACE", end="*** END OF THIS PROJECT GUTENBERG EBOOK TOM SAWYER ***"):
@@ -39,6 +48,7 @@ class Page3Box(BoxLayout):
         endText = textFile.index(end)
         noMetaText = textFile[startText:endText]
         textFile = noMetaText
+
 
 class MyTab(BoxLayout, MDTabsBase):
     pass
@@ -49,8 +59,6 @@ class Tab(MDTabs):
 
 
 class MyFileChooser(FileChooser):
-    fileShownYet = False
-
     def openFile(self):
         global textFile
         global normalizedPath
@@ -63,26 +71,34 @@ class MyFileChooser(FileChooser):
         except:
             print("That didn't work. Is the file a .txt file and the encoding is UTF-8?")
 
-    def saveFile(self):
-        textFile
+    def refreshDelete(self):
+        try:
+            os.remove(normalizedPath)
+            self._update_files()
+            Snackbar(text="File Deleted!").show()
+        except:
+          Snackbar(text="That didn't work. Maybe the file is protected?").show()
 
-    def showFile(self):
-        if textFile == "":
-            Snackbar(text="No .txt file opened yet!").show()
-        else:
-            if self.fileShownYet == False:
-                self.textInput0 = TextInput()
-                self.scrollView0 = ScrollView()
-                self.scrollView0.add_widget(self.textInput0)
-                self.showFilePopup = Popup(title=normalizedPath, content=self.scrollView0, size_hint=(0.7, 1))
+    def deleteFile(self):
+        global normalizedPath
 
-                self.textInput0.text = textFile
-                self.fileShownYet = True
-                self.showFilePopup.open()
-                print("IF HANDLER")
-            elif self.fileShownYet == True:
-                self.showFilePopup.open()
-                print("ELIF HANDLER")
+        normalizedPath = os.path.normpath(self.selection[0])
+        boxlay = BoxLayout()
+        boxlay.orientation = "vertical"
+        boxlay.add_widget(Label(text="Are you sure you want to delete this file?"))
+        boxlayButtons = BoxLayout()
+        yesButton = Button(text="Delete")
+        noButton = Button(text="Cancel")
+
+        boxlayButtons.add_widget(yesButton)
+        boxlayButtons.add_widget(noButton)
+        boxlay.add_widget(boxlayButtons)
+        popup = Popup(content=boxlay, title="Are you sure?", size_hint=(0.5, 0.5))
+        noButton.bind(on_press=lambda x: popup.dismiss())
+        yesButton.bind(on_press=lambda x: self.refreshDelete())
+        yesButton.bind(on_release=lambda x: popup.dismiss())
+        popup.open()
+
 
 
 class WrappingLabel(Label):
@@ -113,7 +129,7 @@ class MainApp(MDApp):
     def showInfoDialog(self):
         dialog = MDDialog(
             title='About this project', size_hint=(.8, .3), text_button_ok='OK Thanks',
-            text="[b]Course:[/b] Hacking The Humanities\n[b]Author:[/b] Leon Hommerich\n[b]Description:[/b] This is a student project from Leon Hommerich for the course HTH Leiden University 2019/2020\n[b]RegEX Source:[/b] regexr.com"
+            text="[b]Course:[/b] Special Topics\n[b]Author:[/b] Leon Hommerich\n[b]Description:[/b] This is a student project from Leon Hommerich for the course Special Topics Leiden University 2019/2020\n[b]RegEX Source:[/b] regexr.com"
         )
         dialog.open()
 
