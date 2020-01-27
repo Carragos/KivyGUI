@@ -1,5 +1,112 @@
+<OwnScroll@ScrollView>
+    bar_width: 20
+    bar_color: [1.00000000000, 0.34117647059, 0.13333333333, 1]
+    bar_inactive_color: [1.00000000000, 0.34117647059, 0.13333333333, 0.5]
+    scroll_type: ["bars"]
+<TokenPopup>
+    wordTokensI: wordTokensI
+    sentenceTokensI: sentenceTokensI
+    title: "Your text tokenized:"
+    size_hint: (0.8, 0.8)
+    BoxLayout:
+        wordTokensI: wordTokensI
+        sentenceTokensI: sentenceTokensI
+        orientation: "vertical"
+        WrappingLabel:
+            text: "Word tokens"
+        OwnScroll:
+            wordTokensI: wordTokensI
+            id: ownScroll1
+            TextInput:
+                id: wordTokensI
+                size_hint_y: None
+                height: max(self.minimum_height, ownScroll1.height)
+        WrappingLabel:
+            text: "Sentence tokens"
+        OwnScroll:
+            sentenceTokensI: sentenceTokensI
+            id: ownScroll2
+            TextInput:
+                id: sentenceTokensI
+                size_hint_y: None
+                height: max(self.minimum_height, ownScroll2.height)
+        BoxLayout:
+            Button:
+                text: "Refresh tokens"
+                on_press: root.setTokens()
+            Button:
+                text: "Reset tokens"
+                on_press: root.clearTokens()
+            Button:
+                text: "Close popup"
+                on_press: root.dismiss()
+
+<SavePopup>
+    title: "Select folder & file name"
+    fileSaver: fileSaver
+    textISave: textISave
+    size_hint: (0.8, 0.8)
+    BoxLayout:
+        textISave: textISave
+        fileSaver: fileSaver
+        orientation: "vertical"
+        MyFileChooser:
+            id: fileSaver
+            textISave: textISave
+            show_hidden: True
+            filters: ["*.txt"]
+            FileChooserListLayout
+            FileChooserIconLayout
+        TextInput:
+            id: textISave
+            multiline: "False"
+            hint_text: "Filename.txt (include file-ending!)"
+            size_hint_y: 0.2
+            size_hint_min_y: 50
+        BoxLayout:
+            size_hint_y: 0.2
+            size_hint_min_y: 70
+            Button:
+                text: "Open file"
+                on_press: fileSaver.openFile()
+            Button:
+                text: "Save editor text"
+                on_press: root.saveFileConfirm()
+            Button:
+                text: "Cancel"
+                on_press: root.dismiss()
+            Button:
+                text: "Switch View"
+                on_press: root.viewSwitch()
+<SelectionPopup>
+    startSelectionI: startSelectionI
+    endSelectionI: endSelectionI
+    title: "Your current selections"
+    size_hint: (0.6, 0.6)
+    BoxLayout:
+        startSelectionI: startSelectionI
+        endSelectionI: endSelectionI
+        orientation: "vertical"
+        WrappingLabel:
+            text: "Current start"
+        TextInput:
+            id: startSelectionI
+        WrappingLabel:
+            text: "Current end"
+        TextInput:
+            id: endSelectionI
+        BoxLayout:
+            Button:
+                text: "Reset Selection"
+                on_press: root.resetSelection()
+            Button:
+                text: "Close popup"
+                on_press: root.dismiss()
+
 <WrappingLabel>
     text_size: root.width, None
+    size_hint_y: 0.1
+    size_hint_min_y: 20
 
 <CustomOneLineListItem@OneLineListItem>:
     divider: "Full"
@@ -26,6 +133,7 @@
             FileChooserIconLayout
         GridLayout:
             size_hint_y: 0.2
+            size_hint_min_y: 70
             rows: 2
             cols: 2
             Button:
@@ -44,32 +152,66 @@
 <TextScreen@Screen>:
     name: "textScreen"
     textInput: textInput
-    FileScreenBox:
+    textScreenBox: textScreenBox
+    TextScreenBox:
+        id: textScreenBox
         orientation: "vertical"
         textInput: textInput
         BoxLayout:
+            size_hint_y: 0.1
+            size_hint_min_y: 50
+            Button:
+                text: "Open/Save File"
+                on_press: textScreenBox.openSaveFile()
             Button:
                 text: "Refresh"
-            Button:
-                text: "Save"
-        ScrollView:
+                on_press: root.textScreenBox.refresh()
+
+        BoxLayout:
             textInput: textInput
-            id: scrollView
-            bar_width: 20
-            bar_color: [1.00000000000, 0.34117647059, 0.13333333333, 1]
-            bar_inactive_color: [1.00000000000, 0.34117647059, 0.13333333333, 0.5]
-            scroll_type: ["bars", "content"]
-            TextInput:
-                multiline: True
-                id: textInput
-                size_hint_y: None
-                height: max(self.minimum_height, scrollView.height)
+            ScrollView:
+                textInput: textInput
+                id: scrollView
+                bar_width: 20
+                bar_color: [1.00000000000, 0.34117647059, 0.13333333333, 1]
+                bar_inactive_color: [1.00000000000, 0.34117647059, 0.13333333333, 0.5]
+                scroll_type: ["bars"]
+                TextInput:
+                    multiline: True
+                    id: textInput
+                    size_hint_y: None
+                    height: max(self.minimum_height, scrollView.height)
+                    hint_text: "Open .txt file or enter any text here.\n Scroll on the right. \n Any changes to this text are live, if not, try refresh \n Save if you want to export into .txt file"
+                    use_bubble: False
+
+            BoxLayout:
+                pos_hint: {"top": 1}
+                orientation: "vertical"
+                size_hint_x: 0.2
+                size_hint_y: 0.4
+                WrappingLabel:
+                    text:"Select text start: "
+                BoxLayout:
+                    Button:
+                        text: "Start"
+                        on_press: root.textScreenBox.setTextStart()
+                WrappingLabel:
+                    text: "Select text end: "
+                BoxLayout:
+                    Button:
+                        text: "End"
+                        on_press: root.textScreenBox.setTextEnd()
+                Button:
+                    text: "Show selections"
+                    on_press: root.textScreenBox.showSelection()
 
 <Page1Screen@Screen>:
     name: "Page1"
     pos_hint: {"bot": 1}
     size_hint: None, None
     page1box: page1box
+    fileTextManager: fileTextManager
+    on_enter: self.page1box.fileTextManager.textScreen.textScreenBox.onEnterRefresh()
     Page1Box:
         id: page1box
         pos_hint: {"top": 1}
@@ -133,12 +275,57 @@
     name: "Page3"
     pos_hint: {"bot": 1}
     size_hint: None, None
+    page3box: page3box
+    on_enter: self.page3box.selectionRefresh()
     Page3Box:
+        id: page3box
+        startMetaI: startMetaI
+        endMetaI: endMetaI
         pos_hint: {"top": 1}
         orientation: "vertical"
-        Button:
-            text: "Remove meta"
-            on_press: self.parent.noMetaText()
+        BoxLayout:
+            size_hint_min_y: 20
+            size_hint_y: 0.05
+            pos_hint: {"top": 1}
+            Label:
+                text_size: self.size
+                halign: "left"
+                text: "Start selection: "
+            Label:
+                text_size: self.size
+                halign: "left"
+                text: "End selection: "
+            Label:
+                text: ""
+        BoxLayout:
+            startMetaI: startMetaI
+            endMetaI: endMetaI
+            TextInput:
+                id: startMetaI
+                hint_text: "Start of text. Example: PREFACE \n Enter any text or gets filled with selection "
+            TextInput:
+                id: endMetaI
+                hint_text: "Start of text. Example: *** END OF THIS PROJECT GUTENBERG EBOOK \n Enter any text or gets filled with selection "
+            Button:
+                text: "Remove meta"
+                on_press: self.parent.parent.noMetaText()
+        BoxLayout:
+            Button:
+                text: "Open NLTK download"
+                on_press: root.page3box.tryNLTKDownload()
+            Button:
+                text: "Tokenize text"
+                on_press: root.page3box.stripAndTokenize()
+            Button:
+                text: "Show tokens"
+                on_press: root.page3box.showTokens()
+        BoxLayout:
+            Button:
+                text: "Plot word frequency"
+                on_press: root.page3box.plotFreq()
+            Button:
+                text: "Plot Avg. sentence length"
+                on_press: root.page3box.plotAvg()
 FloatLayout:
     id: floatLayout
     NavigationLayout:
